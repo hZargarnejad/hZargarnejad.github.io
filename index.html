@@ -1,63 +1,78 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html>
 
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-      }
-  
-      .topnav {
-        overflow: hidden;
-        background-color: #841617;
-      }
-  
-      .topnav a {
-        float: left;
-        color: #f2f2f2;
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-        font-size: 17px;
-      }
-  
-      .topnav a:hover {
-        background-color: #ddd;
-        color: black;
-      }
-  
-    body {background-color:#d3d3d3; font-family:Arial, sans-serif; font-size:14px;
-            text-align:left;}						                /* gray background, center everything */
-    p {margin-left:auto; margin-right:auto; width:600px;}	/* keep paragraphs narrow and centered */
-    input {font-size:115%;}					              				/* make buttons bigger */
-    input[type="range"] {width:90px;}					          	/* make sliders shorter */
-    select {font-size:115%;}							              	/* make selectors bigger */
-    li {text-align:left;}
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #d3d3d3;
+            text-align: center;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #841617;
+        }
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .simulation {
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .caption {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+        }
     </style>
-  </head>
+</head>
 
 <body>
-  <div class="topnav">
-    <a href="index.html"> Hanif Zargarnezhad</a>
-    <a href="PipeBuilder.html"> Pipe Builder</a>
-    <a href="References.html"> References</a>
-  </div>  
-  
-  <p style="text-align:center">
-  <img src="RT_species-0.05um_resized_image_label.gif" align=center>
-  </p>
+    <div class="topnav">
+        <a href="index.html">Hanif Zargarnezhad</a>
+        <a href="PipeBuilder.html">Pipe Builder</a>
+        <a href="References.html">References</a>
+    </div>
 
-  <p style="text-align:center">
-    <b style="text-align:center">Visualizing the simulation of Rayleigh-Taylor instability in multiphase flow, where the Atwood number is 0.1 and the particle diameter is 0.05 um. Witness the intriguing dynamics as heavy particles dominate the upper layer, contrasting with the lighter gas below.</b>
-  </p>
-  
-  <p> 
-    <pre style="text-align:center">
-  </p>
-      
+    <div class="container">
+        <div class="simulation">
+            <img src="RT_species-0.05um_resized_image_label.gif" alt="Rayleigh-Taylor Instability">
+            <div class="caption">Rayleigh-Taylor Instability (Atwood = 0.1, Particle Diameter = 0.05 μm)</div>
+        </div>
+        <div class="simulation">
+            <img src="cavity_simulation.gif" alt="Cavity Flow Simulation">
+            <div class="caption">Lid-Driven Cavity Flow Simulation</div>
+        </div>
+    </div>
 </body>
 
 </html>
