@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,19 +31,33 @@
       color: black;
     }
 
-    p {
-      margin-left: auto;
-      margin-right: auto;
-      max-width: 200px; /* Adjust the maximum width as needed */
-      text-align: left; /* Align text to the left within the container */
+    /* Container to limit text width */
+    .container {
+      width: 90%; /* Adjusted width to prevent content from stretching */
+      max-width: 1200px; /* Maximum width of the container */
+      margin: 0 auto;
+      padding: 20px;
+      text-align: left;
     }
 
-    /* Added styling for the image */
+    /* Limiting width for paragraphs and intro text */
+    .intro-text {
+      max-width: 800px; /* Max width for the introduction text */
+      margin: 0 auto; /* Center the text */
+      text-align: left; /* Align text to the left */
+    }
+
+    /* Styling for the image */
     img {
-      width: 50%; /* 3/4 of the original size */
-      float: left; /* Move the image to the left */
-      margin-right: 10px; /* Add some right margin for spacing */
-      margin-bottom: 10px; /* Add some bottom margin for spacing */
+      width: 30%; /* 30% of the original size for smaller image */
+      float: left; /* Float the image to the left */
+      margin-right: 20px; /* Add some space between the image and text */
+      margin-bottom: 20px; /* Add bottom margin for spacing */
+    }
+
+    /* Clear floats after images to maintain layout */
+    .clear {
+      clear: both;
     }
 
     .google-scholar-link {
@@ -63,27 +76,30 @@
 
 <body>
   <div class="topnav">
-    <a href="References.html">Home</a>
-    <a href="index.html">Simulations</a>
+    <a href="index.html">Home</a> <!-- Make sure the 'index.html' is correct -->
+    <a href="Simulations.html">Simulations</a>
     <a href="CodeRepository.html">Code Repository</a>
   </div>
 
-  <p>
+  <div class="container">
+    <h1>About Me</h1>
+    
     <img src="HZ.png" alt="Portrait of Hanif Zargarnezhad">
-  </p>
+    <p class="intro-text">
+      <b>Disclaimer</b>
+    </p>
 
-  <p>
-    <b>Disclaimer</b>
-  </p>
+    <p>
+      <pre>
+        Copyright [2023], Hanif Zargarnezhad
+      </pre>
+    </p>
 
+    <p class="intro-text">
+      <b>Education and Work Background</b>
+    </p>
 
-
-  <p>
-    <b>Education and Work Background</b>
-  </p>
-
-  <p>
-    <pre>
+    <p class="intro-text">
       I am Hanif Zargarnezhad, a Ph.D. candidate in Mechanical Engineering at Texas A&M University with a strong focus on Computational Fluid Dynamics (CFD), turbulence modeling, and multiphase flow analysis. I have extensive experience in simulating fluid dynamics and multiphase phenomena using advanced computational tools such as OpenFOAM, DEALII, and custom codes developed for extreme conditions.
 
       My research primarily revolves around the development and application of simulation methods to better understand complex fluid flow behaviors, including multiphase flows, heat transfer, and turbulence. Through my work, I have gained proficiency in using a variety of programming languages like Fortran, C++, and Python, as well as applying my knowledge in CFD to real-world engineering problems.
@@ -94,12 +110,12 @@
 
       Sincerely,
       Hanif Zargarnezhad
-    </pre>
-  </p>
+    </p>
 
-  <a href="https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&tzom=300&user=z-npQlMAAAAJ" 
-     class="google-scholar-link" target="_blank">Google Scholar Profile</a>
+    <a href="https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&tzom=300&user=z-npQlMAAAAJ" 
+       class="google-scholar-link" target="_blank">Google Scholar Profile</a>
 
+    <div class="clear"></div> <!-- Clear float from image -->
+  </div>
 </body>
-
 </html>
