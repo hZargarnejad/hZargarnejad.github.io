@@ -2,139 +2,143 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #d3d3d3;
-            text-align: center;
-        }
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #d3d3d3;
+      text-align: center;
+    }
 
-        .topnav {
-            overflow: hidden;
-            background-color: #841617;
-        }
+    .topnav {
+      overflow: hidden;
+      background-color: #841617;
+    }
 
-        .topnav a {
-            float: left;
-            color: #f2f2f2;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-        }
+    .topnav a {
+      float: left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
 
-        .topnav a:hover {
-            background-color: #ddd;
-            color: black;
-        }
+    .topnav a:hover {
+      background-color: #ddd;
+      color: black;
+    }
 
-        .main-content {
-            margin: 20px auto;
-            width: 80%;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    .main-content {
+      margin: 20px auto;
+      width: 90%;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        .title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
 
-        .description {
-            font-size: 16px;
-            margin-bottom: 20px;
-            color: #555;
-        }
+    .description {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #555;
+    }
 
-        .container {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
 
-        .simulation {
-            text-align: center;
-            width: 45%;
-            margin-bottom: 20px;
-        }
+    .simulation {
+      flex: 1 1 calc(50% - 20px);
+      box-sizing: border-box;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        img {
-            width: 100%;
-            max-width: 450px;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    img {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        .caption {
-            font-weight: bold;
-            font-size: 14px;
-            margin-top: 10px;
-            color: #333;
-        }
+    .caption {
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 10px;
+      color: #333;
+    }
 
-        .full-description {
-            font-size: 14px;
-            color: #333;
-            margin-top: 15px;
-            text-align: justify;
-        }
-    </style>
+    .full-description {
+      font-size: 14px;
+      color: #333;
+      margin-top: 15px;
+      text-align: justify;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="topnav">
-        <a href="index.html">Home</a> <!-- Make sure the 'index.html' is correct -->
-        <a href="Simulations.html">Simulations</a>
-        <a href="CodeRepository.html">Code Repository</a>
+  <div class="topnav">
+    <a href="index.html">Home</a>
+    <a href="Simulations.html">Simulations</a>
+    <a href="CodeRepository.html">Code Repository</a>
+  </div>
+
+  <div class="main-content">
+    <div class="title">Simulation Visualizations</div>
+    <div class="description">
+      Below are visualizations from my simulations of fluid dynamics and instability phenomena. Each simulation represents a different aspect of my research.
     </div>
 
-    <div class="main-content">
-        <div class="title">Simulation Visualizations</div>
-        <div class="description">
-            Below are visualizations from my simulations of fluid dynamics and instability phenomena. Each simulation represents a different aspect of my research.
-        </div>
-        
-        <div class="container">
-            <div class="simulation">
-                <img src="RT_species-0.05um_resized_image_label.gif" alt="Rayleigh-Taylor Instability">
-                <div class="caption">Rayleigh-Taylor Instability (Atwood = 0.1, Particle Diameter = 1 μm) (2024)</div>
-                <div class="full-description">
-                    The image above showcases the Rayleigh-Taylor instability, a phenomenon that occurs when a denser fluid is accelerated into a lighter fluid, causing the interface between the two to become unstable. In this simulation, the Atwood number is 0.1, and the particle diameter is 0.05 μm, which represents a regime of weak instability where the growth of perturbations is relatively slow. This simulation helps in understanding the dynamics of multi-phase systems, particularly in the context of particle-laden flows where particles are subject to gravitational forces. The interaction between the fluid's buoyancy-driven forces and the particles' motion plays a significant role in the overall instability behavior.
-                </div>
-            </div>
-            <div class="simulation">
-                <img src="cavity.gif" alt="Cavity Flow Simulation">
-                <div class="caption">Lid-Driven Cavity Flow Simulation (2021)</div>
-                <div class="full-description">
-                    This animation represents a lid-driven cavity flow simulation, a classic problem in computational fluid dynamics (CFD) that is commonly used to validate numerical methods. In this simulation, the fluid is confined within a square or rectangular cavity, with a lid moving at a constant velocity. The flow inside the cavity is driven by the motion of the lid, generating a recirculating flow pattern with a characteristic vortex structure. Notably, this simulation is performed using the **Lattice Boltzmann Method (LBM)**, a powerful computational technique known for its ability to model fluid flow at the microscopic level.       
-            </div>
-            <div class="simulation">
-                <img src="BC_drag.gif" alt="PIC Euler Simulation">
-                <div class="caption">Particle-in-Cell Coupled with Compressible Euler Equations (2022)</div>
-                <div class="full-description">
-                    This simulation demonstrates the implementation of a Particle-in-Cell (PIC) method coupled with the compressible Euler equations using the <strong>deal.II</strong> C++ finite element library. This project advances massless tracer particle tracking and further explores momentum feedback mechanisms. Particles are advected using explicit Euler integration, capturing their evolution in response to local fluid velocities. This forms a foundational step toward fully coupled PIC-fluid solvers for compressible flows. Developed and implemented in 2022 as part of an advanced numerical methods course.
-                </div>
-            </div>
+    <div class="container">
 
-                
-            <div class="simulation">
-                <img src="cropped_cylinder_frontView.jpg" alt="Engine Cylinder Simulation">
-                <div class="caption">Engine Cylinder Simulation (2015)</div>
-                <div class="full-description">
-                    A piston-cylinder assembly from the Mercedes-Benz OM355 diesel engine was modeled in <strong>SOLIDWORKS</strong> to analyze shear stress, thermal strain, and heat transfer resulting from internal combustion. The CAD model supports mechanical and thermal FEA studies under operating conditions.
-            </div>
-       </div>
-
+      <div class="simulation">
+        <img src="RT_species-0.05um_resized_image_label.gif" alt="Rayleigh-Taylor Instability">
+        <div class="caption">Rayleigh-Taylor Instability (2024)</div>
+        <div class="full-description">
+          This simulation showcases the Rayleigh-Taylor instability, a phenomenon that occurs when a denser fluid is accelerated into a lighter fluid, causing the interface to become unstable. In this case, the Atwood number is 0.1, and the particle diameter is 0.05 μm. The result helps visualize multiphase mixing under weak instability.
         </div>
+      </div>
+
+      <div class="simulation">
+        <img src="cavity.gif" alt="LBM PIC Simulation">
+        <div class="caption">Particle-in-Cell with LBM Interface (2021)</div>
+        <div class="full-description">
+          This simulation visualizes a Particle-in-Cell (PIC) method using the Lattice Boltzmann Method (LBM), where particles are tracked within a compressible velocity field. The model highlights how particle motion evolves within fluid domains.
+        </div>
+      </div>
+
+      <div class="simulation">
+        <img src="BC_drag.gif" alt="PIC Euler Simulation">
+        <div class="caption">PIC Coupled with Compressible Euler (2022)</div>
+        <div class="full-description">
+          This simulation shows a Particle-in-Cell (PIC) method coupled with the compressible Euler equations in the <strong>deal.II</strong> C++ finite element library. It advances massless tracer tracking with explicit integration and momentum feedback.
+        </div>
+      </div>
+
+      <div class="simulation">
+        <img src="cropped_cylinder_frontView.jpg" alt="Engine Cylinder Simulation">
+        <div class="caption">Engine Cylinder Design and Analysis (2015)</div>
+        <div class="full-description">
+          A piston-cylinder assembly of the Mercedes-Benz OM355 diesel engine was modeled in <strong>SOLIDWORKS</strong> to analyze shear stress, deformation, and heat transfer due to combustion. This CAD model was used to evaluate mechanical integrity under thermal and pressure loads.
+        </div>
+      </div>
+
     </div>
+  </div>
 </body>
 
 </html>
