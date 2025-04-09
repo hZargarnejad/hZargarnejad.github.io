@@ -116,6 +116,13 @@
                 <div class="full-description">
                     This animation represents a lid-driven cavity flow simulation, a classic problem in computational fluid dynamics (CFD) that is commonly used to validate numerical methods. In this simulation, the fluid is confined within a square or rectangular cavity, with a lid moving at a constant velocity. The flow inside the cavity is driven by the motion of the lid, generating a recirculating flow pattern with a characteristic vortex structure. Notably, this simulation is performed using the **Lattice Boltzmann Method (LBM)**, a powerful computational technique known for its ability to model fluid flow at the microscopic level. The LBM offers advantages in simulating complex boundary conditions and fluid dynamics, particularly in systems with irregular geometries. This method is often used to study shear-driven flows and is highly effective in testing the accuracy and stability of CFD models. The simulation visualizes the velocity field, providing insight into the fluid's behavior under controlled conditions and highlighting the advantages of using LBM in fluid dynamics simulations.                </div>
             </div>
+            <div class="simulation">
+                <img src="BC_drag.gif" alt="PIC Euler Simulation">
+                <div class="caption">Particle-in-Cell Coupled with Compressible Euler Equations (2022)</div>
+                <div class="full-description">
+                    This simulation demonstrates the implementation of a Particle-in-Cell (PIC) method coupled with the compressible Euler equations using the <strong>deal.II</strong> C++ finite element library. Based on <code>step-69</code> and inspired by <code>step-68</code> and <code>step-70</code>, this project advances massless tracer particle tracking and further explores momentum feedback mechanisms. Particles are advected using explicit Euler integration, capturing their evolution in response to local fluid velocities. This forms a foundational step toward fully coupled PIC-fluid solvers for compressible flows. Developed and implemented in 2022 as part of an advanced numerical methods course.
+                </div>
+            </div>
         </div>
     </div>
 </body>
