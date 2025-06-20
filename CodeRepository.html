@@ -1,5 +1,36 @@
-# 2D Flow Simulation Around Multiple Circular Obstacles using WaterLily.jl
-ENV["QT_QPA_PLATFORM"] = "xcb"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Julia Simulation Code</title>
+
+  <!-- Load highlight.js theme -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+
+  <!-- Disable text selection and copying -->
+  <style>
+    pre.nocopy {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      pointer-events: none;
+      opacity: 0.95;
+    }
+    code {
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Julia Simulation Code (GPU Flow with Circular Bodies)</h2>
+
+<pre class="nocopy"><code class="language-julia">
 using WaterLily
 using StaticArrays
 using Plots
@@ -8,22 +39,21 @@ using CUDA
 function make_sim(; L=2^5, U=1, Re=250, mem=CuArray)
     ν = U * L / Re
     size = (8L, 4L)
-    centers = (SA[2L, 2L], SA[4L, 2L], SA[4L, 1L], SA[3L, 3L], SA[3L, 3L], SA[2L, 3L], SA[2L, 1L], SA[2L, 3L]) #SA[4L, 2L]
-    radius = (L / 3, L/2, L/2.5, L/4, L/4, L/3, L/3,L/3)
+    radius = L / 3
 
-    # GPU-safe SDF: avoid `norm`
-    #sdf = (x, t) -> √sum(abs2, x .- center) - radius
-    sdf = (x, t) -> begin
-        d_min = √sum(abs2, x .- centers[1]) - radius[1]
+    # Use GPU-safe static tuple of circle centers
+    centers = (SA[2L, 2L], SA[6L, 2L])
+
+    sdf = (x, t) -&gt; begin
+        d_min = √sum(abs2, x .- centers[1]) - radius
         for i in 2:length(centers)
-            d = √sum(abs2, x .- centers[i]) - radius[i]
+            d = √sum(abs2, x .- centers[i]) - radius
             d_min = min(d_min, d)
         end
         return d_min
     end
-    # No map needed
-    body = AutoBody(sdf)
 
+    body = AutoBody(sdf)
     return Simulation(size, (U, 0), L;
                       U=U, ν=ν, body=body,
                       T=Float64, mem=mem)
@@ -31,10 +61,15 @@ end
 
 sim = make_sim()
 
-# Run simulation and save GIF
+mkpath("/home/hanif/Documents/certificates/practice/")
+
 sim_gif!(sim;
     duration=10,
     clims=(-10, 10),
     plotbody=true,
-    name="~/practice/circle_flow.gif"
+    name="/home/hanif/Documents/certificates/practice/multi_circle.gif"
 )
+</code></pre>
+
+</body>
+</html>
