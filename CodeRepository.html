@@ -1,36 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Julia Simulation Code</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code Repository - Hanif Zargarnezhad</title>
 
-  <!-- Load highlight.js theme -->
+  <!-- Highlight.js for code syntax -->
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
 
-  <!-- Disable text selection and copying -->
   <style>
-    pre.nocopy {
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      pointer-events: none;
-      opacity: 0.95;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
+
+    .topnav {
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    .topnav a {
+      float: left;
+      color: #ffffff;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+
+    .topnav a:hover {
+      background-color: #ffffff;
+      color: black;
+    }
+
+    .topnav a.active {
+      background-color: #1212ad;
+      color: white;
+    }
+
+    .main-content {
+      flex: 1;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 1000px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .accordion {
+      background-color: #f1f1f1;
+      color: #333;
+      cursor: pointer;
+      padding: 18px;
+      width: 100%;
+      border: none;
+      text-align: left;
+      outline: none;
+      font-size: 18px;
+      transition: 0.3s;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .accordion:hover {
+      background-color: #e2e2e2;
+    }
+
+    .accordion.active, .accordion:focus {
+      background-color: #ddd;
+    }
+
+    .panel {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 16px;
+      border-radius: 6px;
+    }
+
     code {
-      font-family: Consolas, 'Courier New', monospace;
+      font-family: Consolas, monospace;
       font-size: 0.9rem;
+    }
+
+    footer {
+      background-color: #f0f0f0;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      border-top: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
 
-<h2>Julia Simulation Code (GPU Flow with Circular Bodies)</h2>
+  <div class="topnav">
+    <a href="index.html">Simulations</a>
+    <a href="AboutMe.html">About Me</a>
+    <a href="CodeRepository.html" class="active">Code Repository</a>
+  </div>
 
-<pre class="nocopy"><code class="language-julia">
+  <div class="main-content">
+    <h2>Code Repository</h2>
+
+    <button class="accordion">CUDA Example (Julia)</button>
+    <div class="panel">
+      <pre><code class="language-julia">
 ENV["QT_QPA_PLATFORM"] = "xcb"
 using WaterLily
 using StaticArrays
@@ -49,26 +142,23 @@ struct TriangleCircleBlobSDF{T}
 end
 
 function (sdf::TriangleCircleBlobSDF)(x, t)
-    L = 32  # Keep consistent with make_sim
+    L = 32
     r_tri, k = L / 3, sqrt(3.0)
-    
-    # Triangle centered at (3L, L)
+
     p = x .- SA[3L, L]
     x1 = abs(p[1]) - r_tri
     y1 = p[2] + r_tri / k
     p2 = SA[clamp(x1, -2r_tri, 2r_tri), y1]
-    
+
     if x1 + k * y1 > 0.0
         p2 = SA[clamp(x1 - 0.5 * k * y1, -2r_tri, 2r_tri), -k * x1 - y1] ./ 2.0
     end
-    
+
     d_min = -norm(p2) * sign(p2[2])
 
-    # Blob with sinusoidal boundary
     dx = x .- sdf.blob_center
     r = norm(dx)
     θ = atan(dx[2], dx[1])
-    
     r_effective = sdf.blob_radius
     for (k, a_k) in enumerate(sdf.amplitudes)
         r_effective += a_k * sin(k * θ)
@@ -77,16 +167,14 @@ function (sdf::TriangleCircleBlobSDF)(x, t)
     d_blob = r - r_effective
     d_min = min(d_min, d_blob)
 
-    # Static circles
     for i in 1:4
         d = norm(x .- sdf.centers[i]) - sdf.radius[i]
         d_min = min(d_min, d)
     end
-    
+
     return d_min
 end
 
-# Simulation constructor
 function make_sim(; L=2^5, U=1, Re=250, mem=CuArray)
     ν = U * L / Re
     size = (12L, 4L)
@@ -101,27 +189,38 @@ function make_sim(; L=2^5, U=1, Re=250, mem=CuArray)
 
     blob_center = SA[8.0L, 2.0L]
     blob_radius = L/4 + (L/2) * rand()^0.5
-    modes_numb =6
-    amplitudes = @SVector [0.2 * blob_radius * (2rand() - 1) for _ in 1:modes_numb]
+    amplitudes = @SVector [0.2 * blob_radius * (2rand() - 1) for _ in 1:6]
 
     sdf = TriangleCircleBlobSDF(centers, radius, blob_center, blob_radius, amplitudes)
     body = AutoBody(sdf)
 
-    return Simulation(size, (U, 0), L;
-                      U=U, ν=ν, body=body,
-                      T=Float64, mem=mem)
+    return Simulation(size, (U, 0), L; U=U, ν=ν, body=body, T=Float64, mem=mem)
 end
 
 sim = make_sim()
 
-sim_gif!(sim;
-    duration=10,
-    clims=(-10, 10),
-    plotbody=true,
-    dpi=300
-)
-
+sim_gif!(sim; duration=10, clims=(-10, 10), plotbody=true, dpi=300)
 </code></pre>
+    </div>
+  </div>
 
+  <footer>
+    <b>Disclaimer:</b> © 2025 Hanif Zargarnezhad. All rights reserved.
+  </footer>
+
+  <script>
+    const acc = document.getElementsByClassName("accordion");
+    for (let i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    }
+  </script>
 </body>
 </html>
