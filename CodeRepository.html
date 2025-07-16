@@ -121,6 +121,7 @@
   <div class="main-content">
     <h2>Code Repository</h2>
 
+    <!-- Accordion 1 -->
     <button class="accordion">Example: Flow over Bodies (Julia/CUDA)</button>
     <div class="panel">
       <pre><code class="language-julia">
@@ -200,33 +201,14 @@ end
 sim = make_sim()
 
 sim_gif!(sim; duration=10, clims=(-10, 10), plotbody=true, dpi=300)
-</code></pre>
+      </code></pre>
     </div>
-  </div>
 
-  <footer>
-    <b>Disclaimer:</b> © 2025 Hanif Zargarnezhad. All rights reserved.
-  </footer>
-
-  <script>
-    const acc = document.getElementsByClassName("accordion");
-    for (let i = 0; i < acc.length; i++) {
-      acc[i].addEventListener("click", function () {
-        this.classList.toggle("active");
-        const panel = this.nextElementSibling;
-        if (panel.style.maxHeight) {
-          panel.style.maxHeight = null;
-        } else {
-          panel.style.maxHeight = panel.scrollHeight + "px";
-        }
-      });
-    }
-  </script>
-
+    <!-- Accordion 2 -->
     <button class="accordion">Example: Particle Tracking (deal.II / C++)</button>
     <div class="panel">
       <pre><code class="language-cpp">
-      #pragma once
+#pragma once
 
 #include "step-69.h"
 #include "particle_tracking.h"
@@ -482,12 +464,13 @@ namespace Step69
     particle_output.write_vtu_with_pvtu_record(
       output_directory, file_name, it, mpi_communicator, 6);
   }
-                                                              
 
-}
- </code></pre>
+} // namespace Step69
+      </code></pre>
     </div>
-  </div>
+
+  </div> <!-- end of main-content -->
+
   <footer>
     <b>Disclaimer:</b> © 2025 Hanif Zargarnezhad. All rights reserved.
   </footer>
@@ -506,5 +489,6 @@ namespace Step69
       });
     }
   </script>
+
 </body>
 </html>
