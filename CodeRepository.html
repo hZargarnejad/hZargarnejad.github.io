@@ -212,7 +212,6 @@ sim_gif!(sim; duration=10, clims=(-10, 10), plotbody=true, dpi=300)
 
 #include "step-69.h"
 #include "particle_tracking.h"
-
 #include <deal.II/base/bounding_box.h>
 #include <deal.II/grid/filtered_iterator.h>
 #include <deal.II/grid/grid_generator.h>
@@ -287,10 +286,7 @@ namespace Step69
   void ParticleTracking<dim>::euler_step_interpolated(const vector_type &U,
                                                       const double       dt)
   {
-    /*
-     * Compute oriented normal:
-     * TODO: Refactor into proper function
-     */
+  
     const auto get_oriented_normal = [](const auto &face) {
       const auto     tangential = face->vertex(0) - face->vertex(1);
       Tensor<1, dim> normal;
@@ -302,7 +298,7 @@ namespace Step69
 
     const auto &dof_handler    = offline_data->dof_handler;
     const auto &finite_element = dof_handler.get_fe();
-    // Parameteres for drag calculation
+    //Parameters for drag calculation
     const double   particle_density = 1850; // graphite
     const double   gas_viscosity    = 1.81e-5;
     const double   diameter         = 1.e-5;
@@ -348,7 +344,7 @@ namespace Step69
                   finite_element.shape_value(j, reference_location) *
                   local_velocity_values[d][j];
 
-            // Drag Force effect for air
+            // Drag Force Effect for a Flow
             /*********************************/
             ArrayView<double> properties_old = p.get_properties();
             for (int d = 0; d < dim; ++d) // drag force effect on velocity
@@ -359,7 +355,7 @@ namespace Step69
               sqrt(particle_velocity[0] * particle_velocity[0] +
                    particle_velocity[1] * particle_velocity[1]) *
               diameter / gas_viscosity;
-            drag_coeff = 0; //24 / Reynolds; //+4*pow(Reynolds,0.333);
+            drag_coeff = 24 / Reynolds +4*pow(Reynolds,0.333); // In Stokes flow
 
             drag = drag_coeff * 3. / 4. * 1 / diameter * gas_density /
                    particle_density *
@@ -378,7 +374,7 @@ namespace Step69
             p.set_location(particle_location);
 
             /*CHECKING BOUNDARY CONDITION*/
-            for (const auto i : dh_cell->face_indices())
+            for (const auto i: dh_cell->face_indices())
               {
                 const auto face = dh_cell->face(i);
                 if (!face->at_boundary())
@@ -411,10 +407,10 @@ namespace Step69
                 particle_velocity[d] +
                 dt * drag * (particle_velocity[d] - particle_velocity_old[d]);
             /* The drag force and drag heating should interpolate with gas*/
-            //  auto drag_force[d] = 1/6*3.14158*diameter**3*particle_density*
-            //                      drag*(properties[d]-particle_velocity[d]);
-            //  auto drag_heating[d] = 1/6*3.14158*diameter**3*particle_density*
-            //                     drag*(properties[d]-particle_velocity[d])**2;
+              auto drag_force[d] = 1/6*PI*diameter**3*particle_density*
+                                  drag*(properties[d]-particle_velocity[d]);
+              auto drag_heating[d] = 1/6*PI*diameter**3*particle_density*
+                                 drag*(properties[d]-particle_velocity[d])**2;
             for (int d = 0; d < dim; ++d)
               average_velocity += sqrt(properties[0] * properties[0] +
                                        properties[1] * properties[1]);
@@ -426,14 +422,9 @@ namespace Step69
           }
       }
     average_velocity = average_velocity / counter;
-    //     time                         = time + dt;
     std::string output_directory = "./";
 
-    // std::ofstream out("data.dat", std::ios::app);
     const std::string file_name("data.dat");
-    // pcout << "gasDens="<< gas_density<< '\t'<< "drag="<< drag << '\t' <<
-    // "time="<< time << '\t' << "averageVel="<< average_velocity << '\n'
-    //   << std::endl;
 
     particle_handler.sort_particles_into_subdomains_and_cells();
   }
