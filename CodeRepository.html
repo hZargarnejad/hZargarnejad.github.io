@@ -222,5 +222,289 @@ sim_gif!(sim; duration=10, clims=(-10, 10), plotbody=true, dpi=300)
       });
     }
   </script>
+
+    <button class="accordion">Example: Particle Tracking (deal.II / C++)</button>
+    <div class="panel">
+      <pre><code class="language-cpp">
+      #pragma once
+
+#include "step-69.h"
+#include "particle_tracking.h"
+
+#include <deal.II/base/bounding_box.h>
+#include <deal.II/grid/filtered_iterator.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/grid/grid_tools.h>
+
+
+namespace Step69
+{
+  template <int dim>
+  ParticleTracking<dim>::ParticleTracking(
+    const MPI_Comm          mpi_communicator,
+    TimerOutput            &computing_timer,
+    const OfflineData<dim> &offline_data,
+    const std::string      &subsection /*= "ParticleTracking"*/)
+    : ParameterAcceptor(subsection)
+    , mpi_communicator(mpi_communicator)
+    , computing_timer(computing_timer)
+    , offline_data(&offline_data)
+    , pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0)
+  {}
+
+
+  template <int dim>
+  void ParticleTracking<dim>::generate_particles()
+  {
+    const auto &discretization = offline_data->discretization;
+    const auto &triangulation  = discretization->triangulation;
+    const auto &mapping        = discretization->mapping;
+    particle_handler.initialize(triangulation, mapping, 1 + dim);
+
+    // FIXME: convert this into proper parameters...
+    Point<dim> center;
+    center[0] = -0.30;
+    center[1] = 0.0;
+
+    if (dim == 3)
+      center[2] = 0.0;
+
+    // FIXME: convert this into proper parameters...
+    const double outer_radius = 0.07;
+    const double inner_radius = 0.003;
+
+    // const double radius = 0.5e-6;
+    unsigned int particle_insertion_refinement = 3;
+
+    parallel::distributed::Triangulation<dim> particle_triangulation(
+      MPI_COMM_WORLD);
+
+    GridGenerator::hyper_shell(
+      particle_triangulation, center, inner_radius, outer_radius, 6);
+    particle_triangulation.refine_global(particle_insertion_refinement);
+
+    const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
+      triangulation, IteratorFilters::LocallyOwnedCell());
+    const auto global_bounding_boxes =
+      Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+
+    std::vector<std::vector<double>> properties(
+      particle_triangulation.n_locally_owned_active_cells(),
+      std::vector<double>(dim + 1, 0.));
+
+    Particles::Generators::quadrature_points(particle_triangulation,
+                                             QMidpoint<dim>(),
+                                             global_bounding_boxes,
+                                             particle_handler,
+                                             mapping,
+                                             properties);
+  }
+
+
+  template <int dim>
+  void ParticleTracking<dim>::euler_step_interpolated(const vector_type &U,
+                                                      const double       dt)
+  {
+    /*
+     * Compute oriented normal:
+     * TODO: Refactor into proper function
+     */
+    const auto get_oriented_normal = [](const auto &face) {
+      const auto     tangential = face->vertex(0) - face->vertex(1);
+      Tensor<1, dim> normal;
+      normal[0] = -tangential[1];
+      normal[1] = tangential[0];
+      normal /= normal.norm();
+      return normal;
+    };
+
+    const auto &dof_handler    = offline_data->dof_handler;
+    const auto &finite_element = dof_handler.get_fe();
+    // Parameteres for drag calculation
+    const double   particle_density = 1850; // graphite
+    const double   gas_viscosity    = 1.81e-5;
+    const double   diameter         = 1.e-5;
+    double         average_velocity = 0;
+    int            counter          = 0;
+    double         drag_coeff;
+    double         drag;
+    Vector<double> local_density_values(finite_element.dofs_per_cell);
+    std::array<Vector<double>, dim> local_velocity_values;
+    double                          gas_density = 0.;
+    for (auto &it : local_velocity_values)
+      it.reinit(finite_element.dofs_per_cell);
+
+    auto particle = particle_handler.begin();
+    while (particle != particle_handler.end())
+      {
+        const auto cell = particle->get_surrounding_cell();
+        const auto dh_cell =
+          typename DoFHandler<dim>::cell_iterator(*cell, &dof_handler);
+
+        dh_cell->get_dof_values(/*density:*/ U[0], local_density_values);
+        for (int d = 0; d < dim; ++d)
+          {
+            dh_cell->get_dof_values(/*momentum component*/ U[1 + d],
+                                    local_velocity_values[d]);
+            for (unsigned int i = 0; i < finite_element.dofs_per_cell; ++i)
+              local_velocity_values[d][i] /= local_density_values[i];
+          }
+
+        for (unsigned int i = 0; i < finite_element.dofs_per_cell; ++i)
+          gas_density += local_density_values[i];
+
+        const auto pic = particle_handler.particles_in_cell(cell);
+        Assert(pic.begin() == particle, ExcInternalError());
+        for (auto &p : pic)
+          {
+            const Point<dim> reference_location = p.get_reference_location();
+            Tensor<1, dim>   particle_velocity;
+            Tensor<1, dim>   particle_velocity_old;
+            for (unsigned int j = 0; j < finite_element.dofs_per_cell; ++j)
+              for (int d = 0; d < dim; ++d)
+                particle_velocity[d] +=
+                  finite_element.shape_value(j, reference_location) *
+                  local_velocity_values[d][j];
+
+            // Drag Force effect for air
+            /*********************************/
+            ArrayView<double> properties_old = p.get_properties();
+            for (int d = 0; d < dim; ++d) // drag force effect on velocity
+              particle_velocity_old[d] = 0; //properties_old[d];
+
+            double Reynolds =
+              gas_density *
+              sqrt(particle_velocity[0] * particle_velocity[0] +
+                   particle_velocity[1] * particle_velocity[1]) *
+              diameter / gas_viscosity;
+            drag_coeff = 0; //24 / Reynolds; //+4*pow(Reynolds,0.333);
+
+            drag = drag_coeff * 3. / 4. * 1 / diameter * gas_density /
+                   particle_density *
+                   sqrt((particle_velocity[0] - particle_velocity_old[0]) *
+                          (particle_velocity[0] - particle_velocity_old[0]) +
+                        (particle_velocity[1] - particle_velocity_old[1]) *
+                          (particle_velocity[1] - particle_velocity_old[1]));
+            /**************************************************************************/
+
+            /* Update particle location: */
+            Point<dim> particle_location = particle->get_location();
+            for (int d = 0; d < dim; ++d)
+            {
+
+              particle_location[d] += particle_velocity[d] * dt;}
+            p.set_location(particle_location);
+
+            /*CHECKING BOUNDARY CONDITION*/
+            for (const auto i : dh_cell->face_indices())
+              {
+                const auto face = dh_cell->face(i);
+                if (!face->at_boundary())
+                  continue;
+
+               if (face->boundary_id() != Boundaries::free_slip)
+                 continue;
+
+                const auto center = face->center();
+                const auto normal = get_oriented_normal(face);
+
+                const double normal_distance =
+                  (particle_location - center) * normal;
+
+                if (normal_distance >= 0.)
+                  {
+                    particle_location = particle_location -
+                                        (2 * normal_distance) * normal;
+                    p.set_location(particle_location);
+                  }
+              }
+            /*
+             * Update particle properties (velocity and owning mpi
+             * process):
+             */
+
+            ArrayView<double> properties = p.get_properties();
+            for (int d = 0; d < dim; ++d) // drag force effect on velocity
+              properties[d] =
+                particle_velocity[d] +
+                dt * drag * (particle_velocity[d] - particle_velocity_old[d]);
+            /* The drag force and drag heating should interpolate with gas*/
+            //  auto drag_force[d] = 1/6*3.14158*diameter**3*particle_density*
+            //                      drag*(properties[d]-particle_velocity[d]);
+            //  auto drag_heating[d] = 1/6*3.14158*diameter**3*particle_density*
+            //                     drag*(properties[d]-particle_velocity[d])**2;
+            for (int d = 0; d < dim; ++d)
+              average_velocity += sqrt(properties[0] * properties[0] +
+                                       properties[1] * properties[1]);
+            properties[dim] =
+              Utilities::MPI::this_mpi_process(mpi_communicator);
+
+            ++particle;
+            counter += 1;
+          }
+      }
+    average_velocity = average_velocity / counter;
+    //     time                         = time + dt;
+    std::string output_directory = "./";
+
+    // std::ofstream out("data.dat", std::ios::app);
+    const std::string file_name("data.dat");
+    // pcout << "gasDens="<< gas_density<< '\t'<< "drag="<< drag << '\t' <<
+    // "time="<< time << '\t' << "averageVel="<< average_velocity << '\n'
+    //   << std::endl;
+
+    particle_handler.sort_particles_into_subdomains_and_cells();
+  }
+
+  template <int dim>
+  void ParticleTracking<dim>::output_particles(const unsigned int it)
+  {
+    Particles::DataOut<dim, dim> particle_output;
+    Tensor<1, dim>               particle_velocity;
+    std::vector<std::string>     solution_names(dim, "velocity");
+    solution_names.push_back("process_id");
+
+    std::vector<DataComponentInterpretation::DataComponentInterpretation>
+      data_component_interpretation(
+        dim, DataComponentInterpretation::component_is_part_of_vector);
+    data_component_interpretation.push_back(
+      DataComponentInterpretation::component_is_scalar);
+
+    particle_output.build_patches(particle_handler,
+                                  solution_names,
+                                  data_component_interpretation);
+    std::string       output_directory = "./";
+    const std::string file_name("interpolated-particles");
+
+    pcout << "Writing particle output file: " << file_name << '-' << it
+          << std::endl;
+
+    particle_output.write_vtu_with_pvtu_record(
+      output_directory, file_name, it, mpi_communicator, 6);
+  }
+                                                              
+
+}
+ </code></pre>
+    </div>
+  </div>
+  <footer>
+    <b>Disclaimer:</b> © 2025 Hanif Zargarnezhad. All rights reserved.
+  </footer>
+
+  <script>
+    const acc = document.getElementsByClassName("accordion");
+    for (let i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    }
+  </script>
 </body>
 </html>
