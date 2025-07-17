@@ -242,19 +242,15 @@ namespace Step69
     const auto &mapping        = discretization->mapping;
     particle_handler.initialize(triangulation, mapping, 1 + dim);
 
-    // FIXME: convert this into proper parameters...
     Point<dim> center;
-    center[0] = -0.30;
-    center[1] = 0.0;
+    center[0] = c_x;
+    center[1] = c_y;
 
     if (dim == 3)
       center[2] = 0.0;
-
-    // FIXME: convert this into proper parameters...
-    const double outer_radius = 0.07;
-    const double inner_radius = 0.003;
-
-    // const double radius = 0.5e-6;
+      
+    const double outer_radius = r_2;
+    const double inner_radius = r_1;
     unsigned int particle_insertion_refinement = 3;
 
     parallel::distributed::Triangulation<dim> particle_triangulation(
@@ -298,10 +294,9 @@ namespace Step69
 
     const auto &dof_handler    = offline_data->dof_handler;
     const auto &finite_element = dof_handler.get_fe();
-    //Parameters for drag calculation
-    const double   particle_density = 1850; // graphite
-    const double   gas_viscosity    = 1.81e-5;
-    const double   diameter         = 1.e-5;
+    const double   particle_density =  dens_graphite;
+    const double   gas_viscosity    = mu_H2;
+    const double   diameter         = d_0;
     double         average_velocity = 0;
     int            counter          = 0;
     double         drag_coeff;
@@ -355,7 +350,7 @@ namespace Step69
               sqrt(particle_velocity[0] * particle_velocity[0] +
                    particle_velocity[1] * particle_velocity[1]) *
               diameter / gas_viscosity;
-            drag_coeff = 24 / Reynolds +4*pow(Reynolds,0.333); // In Stokes flow
+            drag_coeff = 24.0 / Reynolds +4*pow(Reynolds,0.333); // In Stokes flow
 
             drag = drag_coeff * 3. / 4. * 1 / diameter * gas_density /
                    particle_density *
@@ -396,10 +391,6 @@ namespace Step69
                     p.set_location(particle_location);
                   }
               }
-            /*
-             * Update particle properties (velocity and owning mpi
-             * process):
-             */
 
             ArrayView<double> properties = p.get_properties();
             for (int d = 0; d < dim; ++d) // drag force effect on velocity
