@@ -139,11 +139,11 @@
         <img src="RT_species-1um.gif" alt="Rayleigh-Taylor Instability">
         <div class="caption">Rayleigh-Taylor Instability (2024)</div>
         <div class="full-description">
-          This simulation showcases the Rayleigh-Taylor instability, a phenomenon that occurs when a denser fluid is accelerated into a lighter fluid, causing the interface to become unstable. In this case, the Atwood number is 0.1, and the particle diameter is 0.05 μm. The result helps visualize multiphase mixing under weak instability.
+          This simulation showcases the Rayleigh-Taylor instability Using FLASH code (Lagrangian-Eulerian approach). A phenomenon that occurs when a denser gas (mixture of graphite+Hydrogen)is accelerated into a Hydrogen gas under low-pressure conditions, causing the interface to become unstable. In this case, the Atwood number is 0.1, and the particle diameter is 0.05 μm. The result helps visualize multiphase mixing under weak instability.
         </div>
       </div>
       <div class="simulation">
-        <img src="red_blue.gif" alt="Mixing Two Fluids">
+        <img src="3D_RTI_blue_red.gif" alt="Mixing Two Fluids">
         <div class="caption">Mixing Two Fluids</div>
         <div class="full-description">
           Simulation of two immiscible liquids under gravity using OpenFoam. The density difference (Atwood number ≃ 0.05) drives interfacial instability that evolves into Kelvin–Helmholtz vortices and mixing.        </div>
@@ -152,14 +152,12 @@
         <img src="black_white.gif" alt="Mixing Two Fluids-RTI">
         <div class="caption">3D RTI</div>
         <div class="full-description">
-        Three-dimensional simulation of Rayleigh–Taylor instability using <em>OpenFOAM</em>. 
+        A diagonal slice through 3D simulation of Rayleigh–Taylor instability using <em>OpenFOAM</em> at atmospheric conditions.
           The initial interface follows a saddle-shaped perturbation 
           (<code>y<sub>int</sub> = h<sub>0</sub> + 2A[sin(2πx/λ<sub>x</sub> − π/2) + sin(2πz/λ<sub>z</sub> − π/2)]</code>), 
           introducing symmetric sinusoidal waves along both <em>x</em> and <em>z</em> directions. 
-          Even at a low Atwood number, the heavier fluid penetrates into the lighter one, 
-          forming complex 3D bubble–spike structures. 
-          The second stage captures the late-time evolution, where rising bubbles and descending spikes 
-          interact and roll up into fully developed vortical structures.
+          Even at a low Atwood number, water penetrates into sludge (ρ ≈ 0.990 g/m³), forming complex 3D bubble–spike structures. 
+          The second stage captures the late-time evolution, where rising bubbles and descending spikes interact and roll up into fully developed vortical structures.
         </div>
       <div class="simulation">
         <img src="cavity.gif" alt="LBM PIC Simulation">
